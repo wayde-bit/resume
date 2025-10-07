@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominic Kiarie - Interactive Resume</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1e1e1e;
+            color: #cccccc;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .title-bar {
+            background: #323233;
+            border-bottom: 1px solid #1e1e1e;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+        }
+
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .traffic-light.red { background: #ff5f56; }
+        .traffic-light.yellow { background: #ffbd2e; }
+        .traffic-light.green { background: #27c93f; }
+
+        .title-bar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            color: #cccccc;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 45px - 22px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #252526;
+            border-right: 1px solid #1e1e1e;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 12px;
+            border-bottom: 1px solid #1e1e1e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .file-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .file-item, .folder-item {
+            padding: 4px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            user-select: none;
+        }
+
+        .file-item:hover, .folder-item:hover {
+            background: #2a2d2e;
+        }
+
+        .file-item.active {
+            background: #37373d;
+        }
+
+        .folder-children {
+            padding-left: 16px;
+        }
+
+        .folder-children.collapsed {
+            display: none;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .tab-bar {
+            background: #252526;
+            border-bottom: 1px solid #1e1e1e;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            background: #1e1e1e;
+            border-right: 1px solid #252526;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .editor-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .editor-content pre {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .terminal-container {
+            height: 250px;
+            background: #000000;
+            border-top: 1px solid #1e1e1e;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-container.hidden {
+            display: none;
+        }
+
+        .terminal-header {
+            background: #252526;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #1e1e1e;
+            font-size: 13px;
+        }
+
+        .terminal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-close {
+            cursor: pointer;
+            color: #858585;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .terminal-close:hover {
+            color: #cccccc;
+        }
+
+        .terminal-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .terminal-line {
+            margin-bottom: 4px;
+            color: #cccccc;
+        }
+
+        .terminal-line.command {
+            color: #4ec9b0;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-prompt {
+            color: #4ec9b0;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #cccccc;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .terminal-toggle {
+            background: #252526;
+            border-top: 1px solid #1e1e1e;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #cccccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-toggle:hover {
+            background: #2a2d2e;
+        }
+
+        .terminal-toggle.hidden {
+            display: none;
+        }
+
+        .right-sidebar {
+            width: 250px;
+            background: #252526;
+            border-left: 1px solid #1e1e1e;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .profile-item i {
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .profile-item-label {
+            color: #858585;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+
+        .profile-item-value {
+            color: #cccccc;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.green { background: #4ec9b0; }
+        .status-dot.blue { background: #42a5f5; }
+
+        .tip-box {
+            background: #1e1e1e;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .tip-label {
+            color: #858585;
+            margin-bottom: 6px;
+        }
+
+        .tip-content {
+            line-height: 1.5;
+        }
+
+        .tip-content code {
+            color: #4ec9b0;
+            background: #252526;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .status-bar {
+            background: #007acc;
+            color: white;
+            padding: 4px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            align-items: center;
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            gap: 16px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e4e4e;
+        }
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <div class="traffic-lights">
+            <div class="traffic-light red"></div>
+            <div class="traffic-light yellow"></div>
+            <div class="traffic-light green"></div>
+        </div>
+        <div class="title-bar-title">Dominic Kiarie - Resume</div>
+        <div class="title-bar-controls">
+            <i class="bi bi-gear"></i>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="bi bi-folder"></i>
+                RESUME EXPLORER
+            </div>
+            <div class="file-tree" id="fileTree"></div>
+        </div>
+
+        <div class="editor-container">
+            <div class="tab-bar">
+                <div class="tab">
+                    <i class="bi bi-file-earmark-code" style="color: #42a5f5;"></i>
+                    <span id="currentFileName">summary.md</span>
+                </div>
+            </div>
+            <div class="editor-content">
+                <pre id="editorContent"></pre>
+            </div>
+            
+            <div class="terminal-container" id="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-header-left">
+                        <i class="bi bi-terminal"></i>
+                        <span>Terminal</span>
+                    </div>
+                    <span class="terminal-close" id="terminalClose">×</span>
+                </div>
+                <div class="terminal-content" id="terminalContent"></div>
+            </div>
+
+            <div class="terminal-toggle" id="terminalToggle">
+                <i class="bi bi-terminal"></i>
+                <span>Open Terminal</span>
+            </div>
+        </div>
+
+        <div class="right-sidebar">
+            <div class="sidebar-section">
+                <h3><i class="bi bi-person"></i> PROFILE</h3>
+                <div class="profile-item">
+                    <i class="bi bi-envelope" style="color: #42a5f5;"></i>
+                    <div>
+                        <div class="profile-item-label">Email</div>
+                        <div class="profile-item-value">kiariedo60@gmail.com</div>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <i class="bi bi-telephone" style="color: #4ec9b0;"></i>
+                    <div>
+                        <div class="profile-item-label">Phone</div>
+                        <div class="profile-item-value">+254 745 195 116</div>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <i class="bi bi-geo-alt" style="color: #f14c4c;"></i>
+                    <div>
+                        <div class="profile-item-label">Location</div>
+                        <div class="profile-item-value">Nyeri, Kenya</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="bi bi-diagram-3"></i> STATUS</h3>
+                <div class="status-indicator">
+                    <div class="status-dot green"></div>
+                    <span>Available for hire</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot blue"></div>
+                    <span>Open to opportunities</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="tip-box">
+                    <div class="tip-label">Quick Tip:</div>
+                    <div class="tip-content">
+                        Use the terminal below to explore! Type <code>help</code> for commands.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-left">
+            <span>◯ Dominic Kiarie</span>
+            <span>⚡ IT Professional</span>
+        </div>
+        <div class="status-right">
+            <span>UTF-8</span>
+            <span>Markdown</span>
+            <span>Ln 1, Col 1</span>
+        </div>
+    </div>
+
+    <script>
+        // File contents
+        const fileContents = {
+            'README.md': `# Dominic Kiarie - IT Professional
+
+## 👨‍💻 About Me
+Detail-oriented IT graduate with strong technical expertise in 
+cybersecurity, networking, Linux systems, and Web development.
+
+## 🎯 Current Focus
+Seeking challenging opportunities as an IT Service Specialist.
+
+## 📂 Repository Structure
+- /src - Core information (summary, contact, skills)
+- /experience - Professional work history
+- /education - Academic background and certifications
+- /projects - Academic and personal projects
+
+## 🚀 Quick Start
+Navigate through the file tree or use the terminal with commands like:
+- help - View all available commands
+- skills - Display technical skills
+- contact - Show contact information`,
+
+            'src/summary.md': `# Professional Summary
+
+Detail-oriented IT graduate with comprehensive technical expertise gained 
+through academic studies and hands-on practical experience.
+
+## Core Competencies
+- Systems Administration: Windows Server & Linux (Ubuntu, CentOS, Debian)
+- Network Management: TCP/IP, DHCP, DNS, VPN, LAN/WAN
+- Security Implementation: Firewalls, antivirus, cybersecurity protocols
+- Development: Python, React, HTML/CSS
+- Problem Solving: Hardware troubleshooting, software debugging
+
+## What I Bring
+✓ Strong analytical mindset with attention to detail  
+✓ Excellent communication and user support skills  
+✓ Adaptability in fast-paced environments  
+✓ Self-motivated creative team player  
+✓ Comprehensive IT documentation expertise`,
+
+            'src/contact.json': `{
+  "personal": {
+    "name": "Dominic Kiarie",
+    "title": "IT Professional",
+    "location": {
+      "city": "Nyeri",
+      "country": "Kenya"
+    }
+  },
+  "contact": {
+    "email": "kiariedo60@gmail.com",
+    "phone": "+254 745 195 116",
+    "availability": "Immediate"
+  },
+  "status": {
+    "availableForHire": true,
+    "openToRelocation": true
+  }
+}`,
+
+            'src/skills.ts': `// Technical Skills Stack
+
+const technicalSkills = [
+  {
+    category: "Operating Systems",
+    skills: ["Windows Server", "Linux Ubuntu", "CentOS", "Debian"],
+    proficiency: "Advanced"
+  },
+  {
+    category: "Networking",
+    skills: ["TCP/IP", "DHCP", "DNS", "VPN", "LAN/WAN"],
+    proficiency: "Advanced"
+  },
+  {
+    category: "Security",
+    skills: ["Cybersecurity protocols", "Firewalls", "Antivirus"],
+    proficiency: "Advanced"
+  },
+  {
+    category: "Programming",
+    skills: ["Python", "React", "HTML", "CSS"],
+    proficiency: "Intermediate"
+  }
+];
+
+const certifications = [
+  "Introduction to Cybersecurity",
+  "Networking Fundamentals",
+  "Advanced Linux Administration",
+  "Network Security Fundamentals"
+];`,
+
+            'experience/dedan-kimathi-intern.jsx': `// IT Internship Experience
+
+const InternshipExperience = {
+  position: {
+    title: "IT Intern",
+    company: "Dedan Kimathi University of Technology",
+    location: "Nyeri, Kenya",
+    duration: "January 2023 - April 2023"
+  },
+
+  responsibilities: [
+    "Provided IT support to 50+ faculty and staff",
+    "Configured and deployed new workstations",
+    "Implemented data backup procedures",
+    "Troubleshot network connectivity issues",
+    "Managed Linux-based servers",
+    "Created IT documentation",
+    "Conducted security training sessions",
+    "Participated in infrastructure upgrades"
+  ],
+
+  skills: [
+    "Technical Support",
+    "System Configuration",
+    "Network Administration",
+    "Linux Administration",
+    "Cybersecurity"
+  ]
+};`,
+
+            'education/degree.md': `# Education
+
+## Bachelor of Science in Information Technology
+**Institution:** Dedan Kimathi University of Technology  
+**Duration:** 2019 - 2024  
+**Status:** Graduated
+
+### Program Highlights
+- Systems Administration (Windows Server, Linux)
+- Networking (TCP/IP, LAN/WAN, VPN)
+- Cybersecurity (Firewalls, Security protocols)
+- Software Development (Python, Web development)
+- IT Management (Project management, Documentation)
+
+### Key Achievements
+✓ Completed comprehensive capstone projects
+✓ Gained hands-on experience through internship
+✓ Built portfolio of security and networking projects`,
+
+            'education/certifications.yaml': `certifications:
+  - name: "Introduction to Cybersecurity"
+    status: "Completed"
+    
+  - name: "Networking Fundamentals"
+    status: "Completed"
+
+additional_training:
+  - "Advanced Linux Administration"
+  - "Network Security Fundamentals"
+  - "Python for IT Automation"
+  - "Microsoft Excel Advanced Functions"`,
+
+            'projects/network-security.py': `#!/usr/bin/env python3
+"""
+Network Security Implementation Project
+Author: Dominic Kiarie
+
+Designed and implemented a secure network infrastructure
+for a simulated business environment.
+
+Components:
+- Firewall configuration with DMZ
+- VPN setup for remote access
+- Role-based access control system
+- Intrusion detection system
+- Security monitoring and logging
+
+Outcomes:
+- Significantly improved security posture
+- Complete documentation created
+- Industry best practices implemented
+"""
+
+class NetworkSecurityProject:
+    def __init__(self):
+        self.project_name = "Network Security Implementation"
+        self.scope = "Simulated Business Environment"
+        
+    def configure_firewall(self):
+        """Implemented enterprise-grade firewall rules"""
+        return {
+            "type": "Stateful Packet Inspection",
+            "zones": ["Internal", "DMZ", "External"],
+            "policies": ["Default deny all", "Explicit allow rules"]
+        }
+    
+    def setup_vpn(self):
+        """Configured secure VPN for remote access"""
+        return {
+            "protocol": "IPSec with IKEv2",
+            "encryption": "AES-256-GCM",
+            "authentication": "Certificate-based + MFA"
+        }`,
+
+            'projects/linux-server.sh': `#!/bin/bash
+# Linux Server Deployment Project
+# Author: Dominic Kiarie
+#
+# Set up and configured multiple Linux servers:
+# - Web server (Apache, PHP, SSL)
+# - Database server (MySQL with replication)
+# - File server (Samba, NFS)
+
+echo "Linux Server Deployment Project"
+echo "================================"
+
+# Web Server Features
+WEB_FEATURES=(
+    "HTTPS with SSL certificates"
+    "Rate limiting and DDoS protection"
+    "Automated backup scripts"
+    "Performance optimization"
+)
+
+# Security Hardening
+HARDENING=(
+    "Firewall configuration (UFW)"
+    "SSH key-only authentication"
+    "Fail2ban for intrusion prevention"
+    "Automatic security updates"
+)
+
+echo "✓ 3 production-ready servers deployed"
+echo "✓ All services configured and tested"
+echo "✓ Comprehensive security implemented"`,
+
+            'projects/vuln-assessment.py': `#!/usr/bin/env python3
+"""
+Cybersecurity Vulnerability Assessment Project
+Author: Dominic Kiarie
+
+Conducted comprehensive vulnerability assessments on test
+networks and developed mitigation strategies.
+
+Tools Used:
+- Nmap for network mapping
+- Wireshark for traffic analysis
+- Custom Python scripts
+
+Process:
+1. Network scanning and discovery
+2. Vulnerability identification
+3. Risk assessment and prioritization
+4. Mitigation strategy development
+5. Documentation and reporting
+
+Outcomes:
+- Identified 18 vulnerabilities
+- Developed prioritized remediation plans
+- Created detailed technical reports
+"""
+
+class VulnerabilityAssessment:
+    def __init__(self, network_name):
+        self.network_name = network_name
+        self.vulnerabilities = []
+        
+    def scan_network(self):
+        """Phase 1: Network discovery"""
+        return {
+            "total_hosts": 45,
+            "open_ports": 128,
+            "services_identified": 32
+        }
+    
+    def analyze_vulnerabilities(self):
+        """Phase 2: Vulnerability analysis"""
+        return ["Critical: 1", "High: 2", "Medium: 2"]`,
+
+            'references.txt': `Professional References
+
+1. Mr. Njuguna
+   Position: Supervisor
+   Organization: Dedan Kimathi University of Technology
+   Phone: 0725 291 219
+   Can speak to: Technical skills, work ethic
+
+2. Sir Maina
+   Position: Head of Department
+   Organization: Dedan Kimathi University of Technology
+   Phone: 0110 081 376
+   Can speak to: Academic performance, professionalism
+
+3. Mrs. Kuria
+   Position: IT Officer
+   Organization: Dedan Kimathi University of Technology
+   Phone: 0790 183 120
+   Can speak to: Work performance, technical capabilities`
+        };
+
+        // Current state
+        let currentFile = 'src/summary.md';
+        let terminalHistory = [];
+
+        // Initialize terminal
+        function initTerminal() {
+            terminalHistory = [
+                { type: 'command', text: '$ welcome' },
+                { type: 'output', text: "Welcome to Dominic Kiarie's Interactive Resume!" },
+                { type: 'output', text: 'Type "help" for available commands.' },
+                { type: 'output', text: '' }
+            ];
+            updateTerminal();
+        }
+
+        // Update terminal display
+        function updateTerminal() {
+            const content = document.getElementById('terminalContent');
+            content.innerHTML = '';
+            
+            terminalHistory.forEach(line => {
+                const div = document.createElement('div');
+                div.className = 'terminal-line' + (line.type === 'command' ? ' command' : '');
+                div.textContent = line.text;
+                content.appendChild(div);
+            });
+            
+            const inputLine = document.createElement('div');
+            inputLine.className = 'terminal-input-line';
+            
+            const prompt = document.createElement('span');
+            prompt.className = 'terminal-prompt';
+            prompt.textContent = '$';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'terminal-input';
+            input.id = 'terminalInputField';
+            
+            inputLine.appendChild(prompt);
+            inputLine.appendChild(input);
+            content.appendChild(inputLine);
+            
+            input.focus();
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    handleCommand(input.value);
+                }
+            });
+            
+            content.scrollTop = content.scrollHeight;
+        }
+
+        // Handle terminal commands
+        function handleCommand(cmd) {
+            cmd = cmd.trim().toLowerCase();
+            let output = '';
+            
+            switch(cmd) {
+                case 'help':
+                    output = `Available commands:
+  help       - Show this help message
+  clear      - Clear terminal
+  skills     - Display technical skills
+  contact    - Show contact information
+  experience - List work experience
+  education  - Show educational background
+  projects   - List academic projects
+  whoami     - Display profile summary
+  ls         - List all files
+  pwd        - Print working directory`;
+                    break;
+                case 'clear':
+                    terminalHistory = [];
+                    updateTerminal();
+                    return;
+                case 'skills':
+                    output = `Technical Skills:
+├── Operating Systems: Windows Server, Linux (Ubuntu, CentOS, Debian)
+├── Networking: TCP/IP, DHCP, DNS, VPN, LAN/WAN
+├── Security: Cybersecurity protocols, Firewalls, Antivirus
+├── Programming: Python, Bash scripting, HTML/CSS
+└── Tools: Microsoft Office, ERP systems`;
+                    break;
+                case 'contact':
+                    output = `Contact Information:
+Name: Dominic Kiarie
+Email: kiariedo60@gmail.com
+Phone: +254 745 195 116
+Location: Nairobi, Kenya
+Status: Available for hire`;
+                    break;
+                case 'experience':
+                    output = `Work Experience:
+[2023] IT Intern @ Dedan Kimathi University of Technology
+       - Provided IT support to 50+ staff members
+       - Managed Linux servers and network infrastructure
+       - Implemented cybersecurity measures`;
+                    break;
+                case 'education':
+                    output = `Education:
+BSc Information Technology (2019-2024)
+Dedan Kimathi University of Technology
+
+Certifications:
+- Introduction to Cybersecurity
+- Networking Fundamentals`;
+                    break;
+                case 'projects':
+                    output = `Academic Projects:
+1. Network Security Implementation
+2. Linux Server Deployment
+3. Cybersecurity Vulnerability Assessment`;
+                    break;
+                case 'whoami':
+                    output = `Dominic Kiarie - IT Professional
+Detail-oriented IT graduate specializing in cybersecurity,
+networking, and Linux systems administration.`;
+                    break;
+                case 'ls':
+                    output = `README.md  src/  experience/  education/  projects/  references.txt`;
+                    break;
+                case 'pwd':
+                    output = `/home/dominic-kiarie/resume`;
+                    break;
+                default:
+                    if (cmd) {
+                        output = `Command not found: ${cmd}. Type 'help' for available commands.`;
+                    }
+            }
+            
+            if (cmd) {
+                terminalHistory.push({ type: 'command', text: `$ ${cmd}` });
+            }
+            if (output) {
+                terminalHistory.push({ type: 'output', text: output });
+            }
+            terminalHistory.push({ type: 'output', text: '' });
+            updateTerminal();
+        }
+
+        // Build file tree
+        function buildFileTree() {
+            const tree = document.getElementById('fileTree');
+            
+            const files = {
+                'README.md': 'README.md',
+                'src/': ['src/summary.md', 'src/contact.json', 'src/skills.ts'],
+                'experience/': ['experience/dedan-kimathi-intern.jsx'],
+                'education/': ['education/degree.md', 'education/certifications.yaml'],
+                'projects/': ['projects/network-security.py', 'projects/linux-server.sh', 'projects/vuln-assessment.py'],
+                'references.txt': 'references.txt'
+            };
+
+            Object.keys(files).forEach(key => {
+                if (key.endsWith('/')) {
+                    // Folder
+                    const folderName = key.slice(0, -1);
+                    const folderHeader = document.createElement('div');
+                    folderHeader.className = 'folder-item';
+                    folderHeader.innerHTML = `<i class="bi bi-chevron-down"></i><i class="bi bi-folder-open" style="color: #dcb67a;"></i><span>${folderName}</span>`;
+                    
+                    const folderChildren = document.createElement('div');
+                    folderChildren.className = 'folder-children';
+                    
+                    files[key].forEach(filePath => {
+                        const fileName = filePath.split('/')[1];
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        fileItem.innerHTML = `<i class="bi bi-file-earmark-code" style="color: #42a5f5;"></i><span>${fileName}</span>`;
+                        fileItem.onclick = () => openFile(filePath);
+                        folderChildren.appendChild(fileItem);
+                    });
+                    
+                    folderHeader.onclick = (e) => {
+                        e.stopPropagation();
+                        folderChildren.classList.toggle('collapsed');
+                        const chevron = folderHeader.querySelector('i');
+                        const folder = folderHeader.querySelectorAll('i')[1];
+                        if (folderChildren.classList.contains('collapsed')) {
+                            chevron.className = 'bi bi-chevron-right';
+                            folder.className = 'bi bi-folder';
+                        } else {
+                            chevron.className = 'bi bi-chevron-down';
+                            folder.className = 'bi bi-folder-open';
+                        }
+                    };
+                    
+                    tree.appendChild(folderHeader);
+                    tree.appendChild(folderChildren);
+                } else {
+                    // File
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `<i class="bi bi-file-earmark-code" style="color: #42a5f5;"></i><span>${key}</span>`;
+                    fileItem.onclick = () => openFile(key);
+                    tree.appendChild(fileItem);
+                }
+            });
+        }
+
+        // Open file
+        function openFile(path, element) {
+            currentFile = path;
+            document.getElementById('currentFileName').textContent = path;
+            document.getElementById('editorContent').textContent = fileContents[path] || 'File not found';
+            
+            // Update active state
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (element) {
+                const fileItem = element.closest('.file-item');
+                if (fileItem) fileItem.classList.add('active');
+            }
+        }
+
+        // Toggle terminal
+        document.getElementById('terminalClose').onclick = function() {
+            document.getElementById('terminal').classList.add('hidden');
+            document.getElementById('terminalToggle').classList.remove('hidden');
+        };
+
+        document.getElementById('terminalToggle').onclick = function() {
+            document.getElementById('terminal').classList.remove('hidden');
+            document.getElementById('terminalToggle').classList.add('hidden');
+            setTimeout(() => {
+                const input = document.getElementById('terminalInputField');
+                if (input) input.focus();
+            }, 100);
+        };
+
+        // Initialize everything
+        buildFileTree();
+        openFile('src/summary.md');
+        initTerminal();
+    </script>
+</body>
+</html>
